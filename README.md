@@ -157,43 +157,29 @@ python -m src.main
 ```
 
 ## Makefile
-### 1. Установить Poetry (если нет)
 ```bash
+# 1. Установить Poetry (если нет)
 curl -sSL https://install.python-poetry.org | python3 -
-```
 
-### 2. Установить зависимости
-```bash
+# 2. Установить зависимости
 poetry install --with dev
-```
 
-### 3. Установить pre-commit хуки
-```bash
+# 3. Установить pre-commit хуки
 poetry run pre-commit install
-```
 
-### 4. Проверить код
-```bash
+# 4. Проверить код
 make lint
-```
 
-### 5. Форматировать код
-```bash
+# 5. Форматировать код
 make format
-```
 
-### 6. Запустить тесты
-```bash
+# 6. Запустить тесты
 make test
-```
 
-### 7. Создать миграцию
-```bash
+# 7. Создать миграцию
 make db-migration
-```
 
-### 8. Запустить приложение
-```bash
+# 8. Запустить приложение
 make run
 ```
 
