@@ -8,11 +8,11 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.database import get_db
-from src.core.redis import redis_manager
 from src.core.config import settings
-from src.schemas.common import HealthCheckResponse
+from src.core.database import get_db
 from src.core.logging import get_logger
+from src.core.redis import redis_manager
+from src.schemas.common import HealthCheckResponse
 
 logger = get_logger(__name__)
 
@@ -23,7 +23,7 @@ router = APIRouter(tags=["Health"])
 async def health_check() -> HealthCheckResponse:
     """
     Basic health check endpoint.
-    
+
     Returns:
         HealthCheckResponse: Application health status
     """
@@ -39,7 +39,7 @@ async def health_check() -> HealthCheckResponse:
 async def liveness_probe() -> HealthCheckResponse:
     """
     Kubernetes liveness probe endpoint.
-    
+
     Returns:
         HealthCheckResponse: Liveness status
     """
@@ -58,33 +58,33 @@ async def readiness_probe(
     """
     Kubernetes readiness probe endpoint.
     Checks database and Redis connectivity.
-    
+
     Args:
         db: Database session
-    
+
     Returns:
         HealthCheckResponse: Readiness status with service checks
     """
     database_healthy = False
     redis_healthy = False
-    
+
     # Check database
     try:
         result = await db.execute(text("SELECT 1"))
         database_healthy = result.scalar() == 1
     except Exception as e:
         logger.error("Database health check failed", error=str(e))
-    
+
     # Check Redis
     try:
         redis_client = await redis_manager.get_client()
         redis_healthy = await redis_client.ping()
     except Exception as e:
         logger.error("Redis health check failed", error=str(e))
-    
+
     # Determine overall status
     overall_status = "healthy" if (database_healthy and redis_healthy) else "degraded"
-    
+
     return HealthCheckResponse(
         status=overall_status,
         version=settings.app_version,

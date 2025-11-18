@@ -1,0 +1,300 @@
+{
+  // ============================================================================
+  // Editor Settings
+  // ============================================================================
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "editor.rulers": [100],
+  "editor.wordWrap": "on",
+  "editor.tabSize": 4,
+  "editor.insertSpaces": true,
+  "editor.trimAutoWhitespace": true,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.encoding": "utf8",
+  "files.eol": "\n",
+
+  // ============================================================================
+  // Python Settings
+  // ============================================================================
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+  "python.terminal.activateEnvInCurrentTerminal": true,
+  "python.terminal.activateEnvironment": true,
+  
+  // Linting
+  "python.linting.enabled": false,  // We use Ruff instead
+  "ruff.enable": true,
+  "ruff.lint.enable": true,
+  "ruff.format.enable": true,
+  "ruff.organizeImports": true,
+  "ruff.fixAll": true,
+  "ruff.configurationPreference": "filesystemFirst",
+  
+  // Formatting
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "explicit",
+      "source.organizeImports.ruff": "explicit"
+    },
+    "editor.tabSize": 4
+  },
+  
+  // Type Checking
+  "python.analysis.typeCheckingMode": "strict",
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.autoSearchPaths": true,
+  "python.analysis.extraPaths": ["src"],
+  "python.analysis.inlayHints.functionReturnTypes": true,
+  "python.analysis.inlayHints.variableTypes": true,
+  "python.analysis.inlayHints.parameterTypes": true,
+  
+  // Testing
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestArgs": [
+    "tests",
+    "-v",
+    "--tb=short",
+    "--no-header"
+  ],
+  
+  // ============================================================================
+  // File Associations
+  // ============================================================================
+  "files.associations": {
+    "*.env*": "dotenv",
+    "Dockerfile*": "dockerfile",
+    "*.sql": "sql",
+    "*.toml": "toml",
+    "*.yaml": "yaml",
+    "*.yml": "yaml",
+    "requirements*.txt": "pip-requirements"
+  },
+  
+  // ============================================================================
+  // Exclusions
+  // ============================================================================
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/*.pyo": true,
+    "**/*.pyd": true,
+    "**/.Python": true,
+    "**/*.egg-info": true,
+    "**/.pytest_cache": true,
+    "**/.mypy_cache": true,
+    "**/.ruff_cache": true,
+    "**/htmlcov": false,
+    "**/.coverage": false
+  },
+  
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/*.code-search": true,
+    "**/__pycache__": true,
+    "**/venv": true,
+    "**/.venv": true,
+    "**/htmlcov": true
+  },
+  
+  // ============================================================================
+  // Extensions Settings
+  // ============================================================================
+  
+  // Better Comments
+  "better-comments.tags": [
+    {
+      "tag": "!",
+      "color": "#FF2D00",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "?",
+      "color": "#3498DB",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "//",
+      "color": "#474747",
+      "strikethrough": true,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "TODO",
+      "color": "#FF8C00",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": true,
+      "italic": false
+    },
+    {
+      "tag": "FIXME",
+      "color": "#FF2D00",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": true,
+      "italic": false
+    },
+    {
+      "tag": "NOTE",
+      "color": "#98C379",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": true,
+      "italic": false
+    }
+  ],
+  
+  // GitLens
+  "gitlens.codeLens.enabled": false,
+  "gitlens.currentLine.enabled": false,
+  
+  // Error Lens
+  "errorLens.enabledDiagnosticLevels": ["error", "warning", "info"],
+  "errorLens.excludeBySource": ["pylint"],
+  
+  // Thunder Client (API Testing)
+  "thunder-client.saveToWorkspace": true,
+  "thunder-client.workspaceRelativePath": ".thunder-client",
+  
+  // Docker
+  "docker.containers.label": "ContainerName",
+  "docker.containers.sortBy": "CreatedTime",
+  "docker.images.label": "Repository",
+  "docker.images.sortBy": "CreatedTime",
+  
+  // ============================================================================
+  // YAML Settings
+  // ============================================================================
+  "[yaml]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml",
+    "editor.tabSize": 2,
+    "editor.autoIndent": "advanced"
+  },
+  
+  "[dockercompose]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml",
+    "editor.tabSize": 2,
+    "editor.autoIndent": "advanced"
+  },
+  
+  // ============================================================================
+  // JSON Settings
+  // ============================================================================
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2
+  },
+  
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2
+  },
+  
+  // ============================================================================
+  // Markdown Settings
+  // ============================================================================
+  "[markdown]": {
+    "editor.defaultFormatter": "DavidAnson.vscode-markdownlint",
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": {
+      "comments": "off",
+      "strings": "off",
+      "other": "off"
+    }
+  },
+  
+  // ============================================================================
+  // SQL Settings
+  // ============================================================================
+  "[sql]": {
+    "editor.defaultFormatter": "mtxr.sqltools",
+    "editor.tabSize": 2
+  },
+  
+  // ============================================================================
+  // Terminal Settings
+  // ============================================================================
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "terminal.integrated.env.linux": {
+    "PYTHONPATH": "${workspaceFolder}/src"
+  },
+  "terminal.integrated.env.osx": {
+    "PYTHONPATH": "${workspaceFolder}/src"
+  },
+  
+  // ============================================================================
+  // Workspace Settings
+  // ============================================================================
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/*/**": true,
+    "**/.venv/**": true,
+    "**/venv/**": true,
+    "**/__pycache__/**": true,
+    "**/.pytest_cache/**": true
+  },
+  
+  // Auto Save
+  "files.autoSave": "onFocusChange",
+  
+  // Environment Variables
+  "python.envFile": "${workspaceFolder}/.env",
+  
+  // Coverage Gutters
+  "coverage-gutters.showLineCoverage": true,
+  "coverage-gutters.showRulerCoverage": true,
+  
+  // Todo Tree
+  "todo-tree.highlights.defaultHighlight": {
+    "icon": "alert",
+    "type": "text",
+    "foreground": "#FF8C00",
+    "background": "#FF8C001A",
+    "opacity": 50,
+    "iconColour": "#FF8C00"
+  },
+  "todo-tree.highlights.customHighlight": {
+    "TODO": {
+      "icon": "check",
+      "foreground": "#FF8C00",
+      "background": "#FF8C001A",
+      "iconColour": "#FF8C00"
+    },
+    "FIXME": {
+      "icon": "bug",
+      "foreground": "#FF2D00",
+      "background": "#FF2D001A",
+      "iconColour": "#FF2D00"
+    },
+    "NOTE": {
+      "icon": "note",
+      "foreground": "#98C379",
+      "background": "#98C3791A",
+      "iconColour": "#98C379"
+    }
+  }
+}

@@ -4,7 +4,7 @@ Middleware for request processing, logging, and error handling.
 
 import time
 import uuid
-from typing import Callable
+from collections.abc import Callable
 from contextvars import ContextVar
 
 from fastapi import Request, Response, status
@@ -23,34 +23,34 @@ request_id_var: ContextVar[str] = ContextVar("request_id", default="")
 
 class RequestIDMiddleware(BaseHTTPMiddleware):
     """Middleware to add request ID to each request."""
-    
+
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """Add request ID to context and headers."""
         request_id = str(uuid.uuid4())
         request_id_var.set(request_id)
-        
+
         # Add to request state
         request.state.request_id = request_id
-        
+
         # Process request
         response = await call_next(request)
-        
+
         # Add request ID to response headers
         response.headers["X-Request-ID"] = request_id
-        
+
         return response
 
 
 class LoggingMiddleware(BaseHTTPMiddleware):
     """Middleware for request/response logging."""
-    
+
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """Log request and response details."""
         start_time = time.time()
-        
+
         # Get request ID
         request_id = getattr(request.state, "request_id", "unknown")
-        
+
         # Log request
         logger.info(
             "Request started",
@@ -59,7 +59,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             url=str(request.url),
             client_host=request.client.host if request.client else None,
         )
-        
+
         # Process request
         try:
             response = await call_next(request)
@@ -73,10 +73,10 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 process_time=round(process_time, 3),
             )
             raise
-        
+
         # Calculate process time
         process_time = time.time() - start_time
-        
+
         # Log response
         logger.info(
             "Request completed",
@@ -84,16 +84,16 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             status_code=response.status_code,
             process_time=round(process_time, 3),
         )
-        
+
         # Add process time to headers
         response.headers["X-Process-Time"] = str(round(process_time, 3))
-        
+
         return response
 
 
 class ErrorHandlingMiddleware(BaseHTTPMiddleware):
     """Middleware for global error handling."""
-    
+
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """Handle exceptions and return appropriate error responses."""
         try:
@@ -111,7 +111,7 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
             )
         except Exception as e:
             logger.error("Unhandled exception", error=str(e), exc_info=True)
-            
+
             # Don't expose internal errors in production
             if settings.is_production:
                 return JSONResponse(
@@ -122,22 +122,21 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
                         "request_id": getattr(request.state, "request_id", "unknown"),
                     },
                 )
-            else:
-                return JSONResponse(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    content={
-                        "success": False,
-                        "message": "Internal server error",
-                        "detail": str(e),
-                        "request_id": getattr(request.state, "request_id", "unknown"),
-                    },
-                )
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content={
+                    "success": False,
+                    "message": "Internal server error",
+                    "detail": str(e),
+                    "request_id": getattr(request.state, "request_id", "unknown"),
+                },
+            )
 
 
 def get_cors_middleware() -> CORSMiddleware:
     """
     Get CORS middleware with configuration from settings.
-    
+
     Returns:
         CORSMiddleware: Configured CORS middleware
     """

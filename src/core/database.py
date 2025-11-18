@@ -3,18 +3,18 @@ Database configuration and session management.
 Uses SQLAlchemy 2.0 with async support.
 """
 
-from typing import AsyncGenerator, Optional
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
+from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import (
-    AsyncSession,
     AsyncEngine,
+    AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.pool import NullPool
-from sqlalchemy import MetaData
 
 from src.core.config import settings
 from src.core.logging import get_logger
@@ -27,7 +27,7 @@ NAMING_CONVENTION = {
     "uq": "uq_%(table_name)s_%(column_0_name)s",
     "ck": "ck_%(table_name)s_%(constraint_name)s",
     "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-    "pk": "pk_%(table_name)s"
+    "pk": "pk_%(table_name)s",
 }
 
 # Create metadata with naming convention
@@ -39,16 +39,16 @@ Base = declarative_base(metadata=metadata)
 
 class DatabaseManager:
     """Manages database connections and sessions."""
-    
+
     def __init__(self) -> None:
         """Initialize database manager."""
-        self._engine: Optional[AsyncEngine] = None
-        self._sessionmaker: Optional[async_sessionmaker[AsyncSession]] = None
-    
+        self._engine: AsyncEngine | None = None
+        self._sessionmaker: async_sessionmaker[AsyncSession] | None = None
+
     async def create_engine(self) -> AsyncEngine:
         """
         Create and configure async database engine.
-        
+
         Returns:
             AsyncEngine: Configured database engine
         """
@@ -62,24 +62,21 @@ class DatabaseManager:
                 "max_overflow": 20,  # Maximum overflow connections
                 "pool_recycle": 3600,  # Recycle connections after 1 hour
             }
-            
+
             # Use NullPool for testing
             if settings.is_testing:
                 engine_config["poolclass"] = NullPool
-            
-            self._engine = create_async_engine(
-                settings.async_database_url,
-                **engine_config
-            )
-            
+
+            self._engine = create_async_engine(settings.async_database_url, **engine_config)
+
             logger.info("Database engine created", url=settings.async_database_url.split("@")[1])
-        
+
         return self._engine
-    
+
     async def create_sessionmaker(self) -> async_sessionmaker[AsyncSession]:
         """
         Create async session maker.
-        
+
         Returns:
             async_sessionmaker: Session maker for creating database sessions
         """
@@ -93,13 +90,13 @@ class DatabaseManager:
                 autoflush=False,
             )
             logger.info("Session maker created")
-        
+
         return self._sessionmaker
-    
+
     async def get_session(self) -> AsyncGenerator[AsyncSession, None]:
         """
         Get database session.
-        
+
         Yields:
             AsyncSession: Database session
         """
@@ -114,12 +111,12 @@ class DatabaseManager:
                 raise
             finally:
                 await session.close()
-    
+
     @asynccontextmanager
     async def session_scope(self) -> AsyncGenerator[AsyncSession, None]:
         """
         Context manager for database sessions.
-        
+
         Yields:
             AsyncSession: Database session
         """
@@ -133,21 +130,21 @@ class DatabaseManager:
                 raise
             finally:
                 await session.close()
-    
+
     async def init_db(self) -> None:
         """Initialize database (create tables)."""
         engine = await self.create_engine()
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
             logger.info("Database tables created")
-    
+
     async def drop_db(self) -> None:
         """Drop all database tables."""
         engine = await self.create_engine()
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.drop_all)
             logger.warning("Database tables dropped")
-    
+
     async def close(self) -> None:
         """Close database connections."""
         if self._engine:
@@ -163,7 +160,7 @@ db_manager = DatabaseManager()
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """
     Dependency to get database session.
-    
+
     Yields:
         AsyncSession: Database session
     """

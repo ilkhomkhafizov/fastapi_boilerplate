@@ -156,6 +156,47 @@ uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
 python -m src.main
 ```
 
+## Makefile
+### 1. Установить Poetry (если нет)
+```bash
+curl -sSL https://install.python-poetry.org | python3 -
+```
+
+### 2. Установить зависимости
+```bash
+poetry install --with dev
+```
+
+### 3. Установить pre-commit хуки
+```bash
+poetry run pre-commit install
+```
+
+### 4. Проверить код
+```bash
+make lint
+```
+
+### 5. Форматировать код
+```bash
+make format
+```
+
+### 6. Запустить тесты
+```bash
+make test
+```
+
+### 7. Создать миграцию
+```bash
+make db-migration
+```
+
+### 8. Запустить приложение
+```bash
+make run
+```
+
 ## 🧪 Testing
 
 ### Run All Tests
@@ -356,7 +397,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 👥 Authors
 
-- Your Name - Initial work
+- Ilkhom Khafizov - Initial work
 
 ## 🙏 Acknowledgments
 

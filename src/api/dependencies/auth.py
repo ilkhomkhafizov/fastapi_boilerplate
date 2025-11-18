@@ -2,18 +2,17 @@
 Authentication dependencies for FastAPI.
 """
 
-from typing import Optional
 from uuid import UUID
 
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db
+from src.core.logging import get_logger
 from src.core.security import security_manager
 from src.models.user import User, UserRole
 from src.repositories.user import UserRepository
-from src.core.logging import get_logger
 
 logger = get_logger(__name__)
 
@@ -22,41 +21,41 @@ security = HTTPBearer()
 
 
 async def get_current_user_optional(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(HTTPBearer(auto_error=False)),
+    credentials: HTTPAuthorizationCredentials | None = Depends(HTTPBearer(auto_error=False)),
     db: AsyncSession = Depends(get_db),
-) -> Optional[User]:
+) -> User | None:
     """
     Get current user if authenticated (optional).
-    
+
     Args:
         credentials: Authorization credentials
         db: Database session
-    
+
     Returns:
         Optional[User]: Current user or None
     """
     if not credentials:
         return None
-    
+
     token = credentials.credentials
     payload = security_manager.verify_token(token, token_type="access")
-    
+
     if not payload:
         return None
-    
+
     user_id = payload.get("sub")
     if not user_id:
         return None
-    
+
     try:
         user_repo = UserRepository(db)
         user = await user_repo.get_by_id(UUID(user_id))
-        
+
         if user and user.is_active:
             return user
     except Exception as e:
         logger.error("Error getting current user", error=str(e))
-    
+
     return None
 
 
@@ -66,27 +65,27 @@ async def get_current_user(
 ) -> User:
     """
     Get current authenticated user.
-    
+
     Args:
         credentials: Authorization credentials
         db: Database session
-    
+
     Returns:
         User: Current user
-    
+
     Raises:
         HTTPException: If authentication fails
     """
     token = credentials.credentials
     payload = security_manager.verify_token(token, token_type="access")
-    
+
     if not payload:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     user_id = payload.get("sub")
     if not user_id:
         raise HTTPException(
@@ -94,25 +93,25 @@ async def get_current_user(
             detail="Invalid token payload",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     try:
         user_repo = UserRepository(db)
         user = await user_repo.get_by_id(UUID(user_id))
-        
+
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="User not found",
             )
-        
+
         if not user.is_active:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="User account is inactive",
             )
-        
+
         return user
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -128,13 +127,13 @@ async def get_current_active_user(
 ) -> User:
     """
     Get current active user.
-    
+
     Args:
         current_user: Current user from token
-    
+
     Returns:
         User: Active user
-    
+
     Raises:
         HTTPException: If user is not active
     """
@@ -151,13 +150,13 @@ async def get_current_verified_user(
 ) -> User:
     """
     Get current verified user.
-    
+
     Args:
         current_user: Current active user
-    
+
     Returns:
         User: Verified user
-    
+
     Raises:
         HTTPException: If user is not verified
     """
@@ -174,13 +173,13 @@ async def get_current_admin_user(
 ) -> User:
     """
     Get current admin user.
-    
+
     Args:
         current_user: Current active user
-    
+
     Returns:
         User: Admin user
-    
+
     Raises:
         HTTPException: If user is not admin
     """
@@ -197,13 +196,13 @@ async def get_current_super_admin_user(
 ) -> User:
     """
     Get current super admin user.
-    
+
     Args:
         current_user: Current admin user
-    
+
     Returns:
         User: Super admin user
-    
+
     Raises:
         HTTPException: If user is not super admin
     """
@@ -219,29 +218,26 @@ class RoleChecker:
     """
     Dependency for checking user roles.
     """
-    
+
     def __init__(self, allowed_roles: list[UserRole]):
         """
         Initialize role checker.
-        
+
         Args:
             allowed_roles: List of allowed roles
         """
         self.allowed_roles = allowed_roles
-    
-    async def __call__(
-        self,
-        current_user: User = Depends(get_current_active_user)
-    ) -> User:
+
+    async def __call__(self, current_user: User = Depends(get_current_active_user)) -> User:
         """
         Check if user has required role.
-        
+
         Args:
             current_user: Current active user
-        
+
         Returns:
             User: User with required role
-        
+
         Raises:
             HTTPException: If user doesn't have required role
         """

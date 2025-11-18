@@ -1,0 +1,204 @@
+# See https://pre-commit.com for more information
+default_language_version:
+  python: python3.12
+
+repos:
+  # ============================================================================
+  # General fixes and checks
+  # ============================================================================
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+        exclude: ^alembic/versions/
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+      - id: check-ast
+      - id: check-builtin-literals
+      - id: check-case-conflict
+      - id: check-docstring-first
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-xml
+      - id: check-yaml
+        args: [--unsafe]
+      - id: debug-statements
+      - id: detect-private-key
+      - id: fix-byte-order-marker
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: name-tests-test
+        args: [--pytest-test-first]
+      - id: pretty-format-json
+        args: [--autofix, --indent=2]
+
+  # ============================================================================
+  # Python code formatting - Ruff (Fast Rust-based formatter)
+  # ============================================================================
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.0
+    hooks:
+      # Run the linter
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+        types_or: [python, pyi, jupyter]
+      # Run the formatter
+      - id: ruff-format
+        types_or: [python, pyi, jupyter]
+
+  # ============================================================================
+  # Python code formatting - Black (optional, if you prefer it over ruff format)
+  # ============================================================================
+  # - repo: https://github.com/psf/black
+  #   rev: 24.10.0
+  #   hooks:
+  #     - id: black
+  #       language_version: python3.12
+  #       args: [--config=pyproject.toml]
+
+  # ============================================================================
+  # Type checking - Mypy
+  # ============================================================================
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.13.0
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - pydantic>=2.0
+          - sqlalchemy>=2.0
+          - types-python-jose
+          - types-passlib
+          - types-python-dateutil
+        args:
+          - --config-file=pyproject.toml
+          - --ignore-missing-imports
+        exclude: ^(tests/|alembic/)
+
+  # ============================================================================
+  # Security checks - Bandit
+  # ============================================================================
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.10
+    hooks:
+      - id: bandit
+        args: [-c, pyproject.toml]
+        additional_dependencies: ["bandit[toml]"]
+        exclude: ^tests/
+
+  # ============================================================================
+  # Poetry dependency management
+  # ============================================================================
+  - repo: https://github.com/python-poetry/poetry
+    rev: 1.8.0
+    hooks:
+      - id: poetry-check
+      - id: poetry-lock
+        args: [--check]
+
+  # ============================================================================
+  # SQL formatting (for raw SQL if any)
+  # ============================================================================
+  - repo: https://github.com/sqlfluff/sqlfluff
+    rev: 3.2.0
+    hooks:
+      - id: sqlfluff-lint
+        args: [--dialect, postgres]
+        exclude: ^alembic/
+      - id: sqlfluff-fix
+        args: [--dialect, postgres]
+        exclude: ^alembic/
+
+  # ============================================================================
+  # Markdown formatting
+  # ============================================================================
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.42.0
+    hooks:
+      - id: markdownlint
+        args: [--fix]
+
+  # ============================================================================
+  # YAML formatting
+  # ============================================================================
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+        args: [-c=.yamllint]
+
+  # ============================================================================
+  # Dockerfile linting
+  # ============================================================================
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.13.0
+    hooks:
+      - id: hadolint-docker
+        args: [--ignore, DL3008, --ignore, DL3009]
+
+  # ============================================================================
+  # Shell script checks
+  # ============================================================================
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+
+  # ============================================================================
+  # Secrets detection
+  # ============================================================================
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: [--baseline, .secrets.baseline]
+        exclude: ^(poetry.lock|package-lock.json)
+
+  # ============================================================================
+  # License headers (optional)
+  # ============================================================================
+  # - repo: https://github.com/Lucas-C/pre-commit-hooks
+  #   rev: v1.5.5
+  #   hooks:
+  #     - id: insert-license
+  #       files: \.py$
+  #       args:
+  #         - --license-filepath
+  #         - LICENSE-HEADER.txt
+
+  # ============================================================================
+  # Conventional commits
+  # ============================================================================
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.30.0
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]
+
+  # ============================================================================
+  # Local hooks
+  # ============================================================================
+  - repo: local
+    hooks:
+      - id: export-requirements
+        name: Export requirements.txt
+        entry: poetry export -f requirements.txt --output requirements.txt --without-hashes
+        language: system
+        pass_filenames: false
+        files: ^(pyproject.toml|poetry.lock)$
+
+      - id: alembic-check
+        name: Check alembic migrations
+        entry: alembic check
+        language: system
+        pass_filenames: false
+        stages: [push]
+
+      - id: pytest-check
+        name: Run pytest
+        entry: pytest tests/unit -x -v
+        language: system
+        pass_filenames: false
+        stages: [push]

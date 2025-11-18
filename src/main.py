@@ -2,24 +2,24 @@
 Main FastAPI application entry point.
 """
 
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
-from starlette.exceptions import HTTPException as StarletteHTTPException
+from fastapi.responses import JSONResponse
 from sqlalchemy import text
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from src.api.v1 import api_router
 from src.core.config import settings
 from src.core.database import db_manager
-from src.core.redis import redis_manager
 from src.core.logging import get_logger
-from src.api.v1 import api_router
+from src.core.redis import redis_manager
 from src.middleware import (
-    RequestIDMiddleware,
-    LoggingMiddleware,
     ErrorHandlingMiddleware,
+    LoggingMiddleware,
+    RequestIDMiddleware,
     get_cors_middleware,
 )
 
@@ -34,7 +34,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     """
     # Startup
     logger.info("Starting up application", version=settings.app_version)
-    
+
     # Initialize database
     try:
         engine = await db_manager.create_engine()
@@ -45,7 +45,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
         logger.error("Failed to connect to database", error=str(e))
         if settings.is_production:
             raise  # В продакшене не запускаемся без БД
-    
+
     # Initialize Redis
     try:
         await redis_manager.get_client()
@@ -53,25 +53,25 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     except Exception as e:
         logger.error("Failed to initialize Redis", error=str(e))
         # Redis is optional, don't fail startup
-    
+
     yield
-    
+
     # Shutdown
     logger.info("Shutting down application")
-    
+
     # Close database connections
     await db_manager.close()
-    
+
     # Close Redis connections
     await redis_manager.close()
-    
+
     logger.info("Application shutdown complete")
 
 
 def create_application() -> FastAPI:
     """
     Create and configure FastAPI application.
-    
+
     Returns:
         FastAPI: Configured application instance
     """
@@ -84,12 +84,12 @@ def create_application() -> FastAPI:
         openapi_url="/openapi.json" if not settings.is_production else None,
         lifespan=lifespan,
     )
-    
+
     # Add middleware (order matters - executed in reverse order)
     app.add_middleware(ErrorHandlingMiddleware)
     app.add_middleware(LoggingMiddleware)
     app.add_middleware(RequestIDMiddleware)
-    
+
     # Add CORS middleware
     cors_middleware = get_cors_middleware()
     app.add_middleware(
@@ -99,10 +99,10 @@ def create_application() -> FastAPI:
         allow_methods=settings.cors_allow_methods,
         allow_headers=settings.cors_allow_headers,
     )
-    
+
     # Include routers
     app.include_router(api_router)
-    
+
     # Add root endpoint
     @app.get("/", tags=["Root"])
     async def root():
@@ -113,7 +113,7 @@ def create_application() -> FastAPI:
             "environment": settings.environment,
             "docs": "/docs" if not settings.is_production else None,
         }
-    
+
     # Custom exception handlers
     @app.exception_handler(StarletteHTTPException)
     async def http_exception_handler(request: Request, exc: StarletteHTTPException):
@@ -126,7 +126,7 @@ def create_application() -> FastAPI:
                 "status_code": exc.status_code,
             },
         )
-    
+
     @app.exception_handler(RequestValidationError)
     async def validation_exception_handler(request: Request, exc: RequestValidationError):
         """Handle validation errors."""
@@ -138,14 +138,14 @@ def create_application() -> FastAPI:
                 "details": exc.errors(),
             },
         )
-    
+
     logger.info(
         "Application created",
         name=settings.app_name,
         version=settings.app_version,
         environment=settings.environment,
     )
-    
+
     return app
 
 
@@ -155,7 +155,7 @@ app = create_application()
 
 if __name__ == "__main__":
     import uvicorn
-    
+
     uvicorn.run(
         "src.main:app",
         host=settings.server_host,

@@ -2,41 +2,41 @@
 Schemas module containing all Pydantic models for validation.
 """
 
-from src.schemas.user import (
-    UserBase,
-    UserCreate,
-    UserUpdate,
-    UserUpdatePassword,
-    UserResponse,
-    UserWithStats,
-    UserList,
-    UserAdminUpdate,
+from src.schemas.auth import (
+    EmailVerificationRequest,
+    LoginRequest,
+    PasswordResetConfirm,
+    PasswordResetRequest,
+    RefreshTokenRequest,
+    Token,
+    TokenData,
+)
+from src.schemas.common import (
+    ErrorResponse,
+    HealthCheckResponse,
+    OrderDirection,
+    PaginatedResponse,
+    PaginationParams,
+    StatsResponse,
+    SuccessResponse,
 )
 from src.schemas.post import (
     PostBase,
     PostCreate,
-    PostUpdate,
-    PostResponse,
     PostList,
+    PostResponse,
     PostStats,
+    PostUpdate,
 )
-from src.schemas.auth import (
-    Token,
-    TokenData,
-    LoginRequest,
-    RefreshTokenRequest,
-    PasswordResetRequest,
-    PasswordResetConfirm,
-    EmailVerificationRequest,
-)
-from src.schemas.common import (
-    OrderDirection,
-    PaginationParams,
-    PaginatedResponse,
-    SuccessResponse,
-    ErrorResponse,
-    HealthCheckResponse,
-    StatsResponse,
+from src.schemas.user import (
+    UserAdminUpdate,
+    UserBase,
+    UserCreate,
+    UserList,
+    UserResponse,
+    UserUpdate,
+    UserUpdatePassword,
+    UserWithStats,
 )
 
 __all__ = [

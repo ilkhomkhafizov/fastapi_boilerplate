@@ -1,0 +1,84 @@
+{
+  "recommendations": [
+    // Python Core
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.debugpy",
+    
+    // Python Linting & Formatting
+    "charliermarsh.ruff",
+    "ms-python.mypy-type-checker",
+    "ms-python.black-formatter",
+    
+    // Testing
+    "hbenl.vscode-test-explorer",
+    "littlefoxteam.vscode-python-test-adapter",
+    "ryanluker.vscode-coverage-gutters",
+    
+    // Docker
+    "ms-azuretools.vscode-docker",
+    "ms-vscode-remote.remote-containers",
+    
+    // Database
+    "mtxr.sqltools",
+    "mtxr.sqltools-driver-pg",
+    
+    // Git
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+    "donjayamanne.githistory",
+    
+    // API Development
+    "rangav.vscode-thunder-client",
+    "42Crunch.vscode-openapi",
+    "arjun.swagger-viewer",
+    
+    // YAML/JSON
+    "redhat.vscode-yaml",
+    "eriklynd.json-tools",
+    
+    // Markdown
+    "DavidAnson.vscode-markdownlint",
+    "yzhang.markdown-all-in-one",
+    "bierner.markdown-mermaid",
+    
+    // Code Quality
+    "streetsidesoftware.code-spell-checker",
+    "usernamehw.errorlens",
+    "Gruntfuggly.todo-tree",
+    "aaron-bond.better-comments",
+    "wayou.vscode-todo-highlight",
+    "sonarsource.sonarlint-vscode",
+    
+    // Utilities
+    "EditorConfig.EditorConfig",
+    "esbenp.prettier-vscode",
+    "christian-kohler.path-intellisense",
+    "sleistner.vscode-fileutils",
+    "PKief.material-icon-theme",
+    "zhuangtongfa.material-theme",
+    "oderwat.indent-rainbow",
+    "mechatroner.rainbow-csv",
+    
+    // Environment Variables
+    "mikestead.dotenv",
+    "IronGeek.vscode-env",
+    
+    // Documentation
+    "njpwerner.autodocstring",
+    "KevinRose.vsc-python-indent",
+    
+    // AI Assistance (optional)
+    "GitHub.copilot",
+    "GitHub.copilot-chat",
+    "tabnine.tabnine-vscode",
+    
+    // Remote Development
+    "ms-vscode-remote.remote-ssh",
+    "ms-vscode-remote.remote-wsl",
+    
+    // Shell
+    "timonwong.shellcheck",
+    "foxundermoon.shell-format"
+  ]
+}
