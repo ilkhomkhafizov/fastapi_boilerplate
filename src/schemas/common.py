@@ -61,9 +61,12 @@ class HealthCheckResponse(BaseModel):
     status: str = "healthy"
     version: str
     environment: str
+    timestamp: str
+
+
+class AllHealthCheckResponse(HealthCheckResponse):
     database: bool = False
     redis: bool = False
-    timestamp: str
 
 
 class StatsResponse(BaseModel):

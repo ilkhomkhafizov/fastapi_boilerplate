@@ -2,7 +2,7 @@
 Health check API routes.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, status
 from sqlalchemy import text
@@ -12,7 +12,7 @@ from src.core.config import settings
 from src.core.database import get_db
 from src.core.logging import get_logger
 from src.core.redis import redis_manager
-from src.schemas.common import HealthCheckResponse
+from src.schemas.common import HealthCheckResponse, AllHealthCheckResponse
 
 logger = get_logger(__name__)
 
@@ -31,7 +31,7 @@ async def health_check() -> HealthCheckResponse:
         status="healthy",
         version=settings.app_version,
         environment=settings.environment,
-        timestamp=datetime.utcnow().isoformat(),
+        timestamp=datetime.now(timezone.utc).isoformat(),
     )
 
 
@@ -47,14 +47,14 @@ async def liveness_probe() -> HealthCheckResponse:
         status="alive",
         version=settings.app_version,
         environment=settings.environment,
-        timestamp=datetime.utcnow().isoformat(),
+        timestamp=datetime.now(timezone.utc).isoformat(),
     )
 
 
-@router.get("/health/ready", response_model=HealthCheckResponse)
+@router.get("/health/ready", response_model=AllHealthCheckResponse)
 async def readiness_probe(
     db: AsyncSession = Depends(get_db),
-) -> HealthCheckResponse:
+) -> AllHealthCheckResponse:
     """
     Kubernetes readiness probe endpoint.
     Checks database and Redis connectivity.
@@ -63,7 +63,7 @@ async def readiness_probe(
         db: Database session
 
     Returns:
-        HealthCheckResponse: Readiness status with service checks
+        AllHealthCheckResponse: Readiness status with service checks
     """
     database_healthy = False
     redis_healthy = False
@@ -85,7 +85,7 @@ async def readiness_probe(
     # Determine overall status
     overall_status = "healthy" if (database_healthy and redis_healthy) else "degraded"
 
-    return HealthCheckResponse(
+    return AllHealthCheckResponse(
         status=overall_status,
         version=settings.app_version,
         environment=settings.environment,
